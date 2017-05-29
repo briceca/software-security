@@ -14,10 +14,10 @@ public class Send {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
 
 
-            channel.basicPublish("", QUEUE_NAME, null, PLNObject().toString().getBytes());
+            channel.basicPublish("", QUEUE_NAME, null, COLObject().toString().getBytes());
         System.out.println(" [x] Sent ");
 
         channel.close();
@@ -188,20 +188,20 @@ public class Send {
     {
         JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
         JsonObject object = jsonFactory.createObjectBuilder()
-                .add("Type", "Request")
+                .add("Type", "ballzak")
                 .add("Method", "PUT")
                 .add("Sender", "KAS")
                 .add("Receiver", "CLP")
                 .add("ObjectType", "PLN")
                 .add("Credentials", jsonFactory.createObjectBuilder()
-                        .add("login", "joskeNA")
-                        .add("password", "joske123"))
+                        .add("login", "ballzak")
+                        .add("password", "ballzak"))
                 .add("Body", jsonFactory.createObjectBuilder()
-                        .add("UUID", "KDN34576HDBHRBCR0879879")
-                        .add("name", "KOEN")
-                        .add("surname", "VANDERVELDE")
-                        .add("address", "Bosstraat 20, 9000 PLOP")
-                        .add("email", "Koen.vandervelde@hotmail.com")
+                        .add("UUID", "ballzak")
+                        .add("name", "ballzak")
+                        .add("surname", "ballzak")
+                        .add("address", "ballzakstraat 20, 9000 PLOP")
+                        .add("email", "balzak.vandervelde@hotmail.com")
                         .add("tel", "0478562998")
                         .add("cable", "TRUE")
                         .add("breakfast", "FALSE")
