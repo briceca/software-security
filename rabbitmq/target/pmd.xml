@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="5.6.1" timestamp="2017-05-23T12:37:04.791">
+<file name="C:\Users\LoStIt\Monitoring\rabbitmq\src\main\java\rabbitmq\Recv.java">
+<violation beginline="13" endline="13" begincolumn="25" endcolumn="36" rule="AvoidUsingHardCodedIP" ruleset="Basic" package="rabbitmq" class="Recv" method="main" externalInfoUrl="https://pmd.github.io/pmd-5.6.1/pmd-java/rules/java/basic.html#AvoidUsingHardCodedIP" priority="3">
+Do not hard code the IP address 
+</violation>
+<violation beginline="30" endline="30" begincolumn="28" endcolumn="33" rule="UnusedLocalVariable" ruleset="Unused Code" package="rabbitmq" class="Recv" method="handleDelivery" variable="method" externalInfoUrl="https://pmd.github.io/pmd-5.6.1/pmd-java/rules/java/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'method'.
+</violation>
+<violation beginline="33" endline="33" begincolumn="28" endcolumn="37" rule="UnusedLocalVariable" ruleset="Unused Code" package="rabbitmq" class="Recv" method="handleDelivery" variable="objectType" externalInfoUrl="https://pmd.github.io/pmd-5.6.1/pmd-java/rules/java/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'objectType'.
+</violation>
+</file>
+</pmd>
