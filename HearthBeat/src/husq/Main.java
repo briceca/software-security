@@ -16,7 +16,9 @@ import java.net.UnknownHostException;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
+
 public class Main extends Thread {
+     static SendObject obj[] = new SendObject[4];
     public static void main(String[] argv) throws Exception {
         StatusSender statSnd = new StatusSender();
         StatusCheckListener statLst = new StatusCheckListener();
@@ -35,5 +37,14 @@ public class Main extends Thread {
             System.out.println("Main thread interrupted");
         }
         System.out.println("Main thread run is over" );
+    }
+public static SendObject[] getObj()
+{
+    return obj;
+}
+    public static void setObj(SendObject[] Sobj)
+    {
+        obj = Sobj;
+
     }
 }

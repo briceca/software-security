@@ -13,13 +13,14 @@ import javax.json.JsonObject;
  */
 public class StatusCheckSend {
     private static String QUEUE_NAME;
-    public static void CheckSend(long timestamp, int [] var) throws Exception {
-        Send("CRMQueue", timestamp, var[0], "CRM");
-        Send("FrontendQueue", timestamp, var[1], "FRE");
-        Send("KassaQueue", timestamp, var[2], "KAS");
-        Send("PlanningQueue", timestamp, var[3], "CLP");
+    public static void CheckSend(SendObject[] sndObj) throws Exception {
+
+        Send("CRMQueue", sndObj[0].getTimestampSnd(), sndObj[0].getVar(), sndObj[0].getSystemName(), sndObj[0].getUuid(), sndObj[0].getVersion());
+        Send("FrontendQueue", sndObj[1].getTimestampSnd(), sndObj[1].getVar(), sndObj[1].getSystemName(), sndObj[1].getUuid(), sndObj[1].getVersion());
+        Send("KassaQueue", sndObj[2].getTimestampSnd(), sndObj[2].getVar(), sndObj[2].getSystemName(), sndObj[2].getUuid(), sndObj[2].getVersion());
+        Send("PlanningQueue", sndObj[3].getTimestampSnd(), sndObj[3].getVar(), sndObj[3].getSystemName(), sndObj[3].getUuid(), sndObj[3].getVersion());
     }
-    public static void Send(String name, long timestamp, int var, String recName) throws Exception {
+    public static void Send(String name, long timestamp, int var, String recName, String uuid, int version) throws Exception {
         QUEUE_NAME = name;
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("10.3.51.32");
@@ -29,16 +30,14 @@ public class StatusCheckSend {
         Channel channel = connection.createChannel();
 
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-
-
-        channel.basicPublish("", QUEUE_NAME, null, MakeCheckObject(timestamp, var, recName ).toString().getBytes());
+        channel.basicPublish("", QUEUE_NAME, null, MakeCheckObject(timestamp, var, recName, uuid, version ).toString().getBytes());
         System.out.println(" check Sent to :" + name);
 
         channel.close();
         connection.close();
     }
 
-    private static JsonObject MakeCheckObject(long timestamp, int var, String recName)
+    private static JsonObject MakeCheckObject(long timestamp, int var, String recName, String uuid, int version)
     {
         JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
         JsonObject object = jsonFactory.createObjectBuilder()
@@ -46,11 +45,11 @@ public class StatusCheckSend {
                 .add("Receiver", recName)
                 .add("Sender", "Mon")
                 .add("Body", jsonFactory.createObjectBuilder()
-                        .add("uuid", recName)
+                        .add("uuid", uuid)
                         .add("timestampsnd", timestamp)
                         .add("timestampres", "null")
                         .add("var", var)
-                        .add("version", "0"))
+                        .add("version", version))
                 .build();
         return object;
     }

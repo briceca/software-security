@@ -15,30 +15,15 @@ public class StatusSender implements Runnable {
         System.out.println("my thread created" + senderthread);
         senderthread.start();
     }
+
     public void run() {
         while(senderthread.isAlive()){
-        // MasterCall.PutRequest();
-        long millis = System.currentTimeMillis();
-        int var[] = new int[4];
-        for(int i = 0; i <4; i++)
-        {
-            var[i] = (int)(Math.random() * 50);
-        }
 
-        //moet nog berekend worden!!
-        boolean status[] = new boolean[7];
-        for(int i = 0; i <7; i++)
-        {
-            status[i] = true;
-        }
-        int delays[] = new int[7];
-        for(int i = 0; i <7; i++)
-        {
-            delays[i] = (int)(Math.random() * 50);
-        }
-        //bereken
+        SendObject objects[] = MasterCall.PutRequest();
+        Main.setObj(objects);
+
         try {
-            StatusCheckSend.CheckSend(millis, var);
+            StatusCheckSend.CheckSend(objects);
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -48,7 +33,7 @@ public class StatusSender implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-    }
 
+        }
     }
 }

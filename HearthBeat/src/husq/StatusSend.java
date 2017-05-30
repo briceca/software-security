@@ -21,7 +21,7 @@ import java.net.UnknownHostException;
  */
 public class StatusSend {
     private final static String QUEUE_NAME = "DashBoardQueue";
-    public static void DashSend(int[] delays, boolean[] status) throws Exception
+    public static void DashSend(SendObject objects[]) throws Exception
     {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("10.3.51.32");
@@ -33,55 +33,55 @@ public class StatusSend {
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
 
 
-        channel.basicPublish("", QUEUE_NAME, null, obj(delays, status).toString().getBytes());
+        channel.basicPublish("", QUEUE_NAME, null, obj(objects).toString().getBytes());
         System.out.println(" status Sent ");
 
         channel.close();
         connection.close();
     }
-    public static void ElasticSend(int[] delays, boolean[] status) throws Exception
+    public static void ElasticSend(SendObject objects[]) throws Exception
     {
         TransportClient client = setupClient();
 
             IndexResponse response = client.prepareIndex("statuscheck", "status")
-                    .setSource(obj(delays, status))
+                    .setSource(obj(objects))
                     .get();
             System.out.println(response.getResult() + "\n\n");
         client.close();
     }
 
-    private static JsonObject obj(int[] delays, boolean[] status) {
+    private static JsonObject obj(SendObject objects[]) {
         JsonBuilderFactory jsonFactory = Json.createBuilderFactory(null);
         JsonObject object = jsonFactory.createObjectBuilder()
                 .add("Serverstatus", Json.createArrayBuilder()
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "master")
-                                .add("Delay", delays[0])
-                                .add("Online", status[0]))
+                                .add("Delay", "-1")
+                                .add("Online", true))
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "jenkins")
-                                .add("Delay", delays[1])
-                                .add("Online", status[1]))
+                                .add("Delay", "-1")
+                                .add("Online", "-1"))
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "CRM")
-                                .add("Delay", delays[2])
-                                .add("Online", status[2]))
+                                .add("Delay", objects[0].getDelay())
+                                .add("Online", objects[0].getStatus()))
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "Kassa")
-                                .add("Delay", delays[3])
-                                .add("Online", status[3]))
+                                .add("Delay", objects[1].getDelay())
+                                .add("Online", objects[1].getStatus()))
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "Cloud")
-                                .add("Delay", delays[4])
-                                .add("Online", status[4]))
+                                .add("Delay", objects[2].getDelay())
+                                .add("Online", objects[2].getStatus()))
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "Frontend")
-                                .add("Delay", delays[5])
-                                .add("Online", status[5]))
+                                .add("Delay", objects[3].getDelay())
+                                .add("Online", objects[3].getStatus()))
                         .add(Json.createObjectBuilder()
                                 .add("Naam", "Monitoring")
-                                .add("Delay", delays[6])
-                                .add("Online", status[6])))
+                                .add("Delay", "-1")
+                                .add("Online", "true")))
                 .build();
         return object;
     }
