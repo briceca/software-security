@@ -19,12 +19,18 @@ import java.net.UnknownHostException;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
-public class StatusCheckListener {
+public class StatusCheckListener implements Runnable{
 
-    private final static String QUEUE_NAME = "MonitoringLogQueue";
-
-    public static void listener() throws Exception {
-
+    private final static String QUEUE_NAME = "HeartBeatQueue";
+    Thread listenerthread ;
+    StatusCheckListener()
+    {
+        listenerthread = new Thread(this, "my runnable thread");
+        System.out.println("my thread created" + listenerthread);
+        listenerthread.start();
+    }
+    public void run() {
+try{
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("10.3.51.32");
         factory.setUsername("control");
@@ -40,23 +46,23 @@ public class StatusCheckListener {
                 String message = new String(msg, "UTF-8");
 
 
-                try {
+
                     JSONObject obj = new JSONObject(message);
                     String type = obj.getString("Type");
-                    String method = obj.getString("Method");
-                    String sender = obj.getString("Sender").toLowerCase();
-                    String receiver = obj.getString("Receiver");
-                    String objectType = obj.getString("ObjectType");
-                    JSONObject getSth = obj.getJSONObject("Credentials");
-                    String login = getSth.get("login").toString();
                     JSONObject body = obj.getJSONObject("Body");
-                    System.out.println("sender: " + sender + "\nreceiver: " + receiver + "\ntype: " + type + "\nmethod: " + method + "\nobjectType: " + objectType + "\nlogin: " + login);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    String uuid = body.get("uuid").toString();
+                    int timestampsnd = body.getInt("timestampsnd");
+                    int timestampres = body.getInt("timestampres");
+                    int delay = timestampres-timestampsnd;
+                    int var = body.getInt("var");
+                    int version = body.getInt("version");
+                    System.out.println("type: " + type + "\nuuid: " + uuid + "\ndelay: " + delay + "\nvar: " + var + "\nversion: " + version);
                 }
-            }
-        };
-        channel.basicConsume(QUEUE_NAME, true, consumer);
+            };
+    channel.basicConsume(QUEUE_NAME, true, consumer);
+    }catch (Exception e) {
+        e.printStackTrace();
+    }
     }
     private static TransportClient setupClient() {
         // Set up transport client
