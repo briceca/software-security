@@ -98,30 +98,6 @@ class Receiver {
 
     private static void ElasticSendDBError(JSONObject body) {
         String errorCode = Integer.toString(body.getInt("ErrorCode"));
-        Date dateTime = new Date(body.getLong("DateTime"));
-        String exception = body.getString("Exception");
-
-        TransportClient client = setupClient();
-
-        try {
-            IndexResponse response = client.prepareIndex("error", errorCode)
-                    .setSource(jsonBuilder()
-                            .startObject()
-                            .field("dateTime", dateTime)
-                            .field("exception", exception)
-                            .endObject()
-                    )
-                    .get();
-            System.out.println(response.getResult() + "\n\n");
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        }
-        client.close();
-    }
-
-    private static void ElasticSendAppError(JSONObject body) {
-        String errorCode = Integer.toString(body.getInt("ErrorCode"));
         String sender = body.getString("Sender");
         String receiver = body.getString("Receiver");
         String objectType = body.getString("ObjectType");
@@ -152,17 +128,19 @@ class Receiver {
         client.close();
     }
 
-    private static void ElasticSend(String index, String objectType, String method, String sender, String receiver, String type, String login) {
+    private static void ElasticSendAppError(JSONObject body) {
+        String errorCode = Integer.toString(body.getInt("ErrorCode"));
+        Date dateTime = new Date(body.getLong("DateTime"));
+        String exception = body.getString("Exception");
+
         TransportClient client = setupClient();
+
         try {
-            IndexResponse response = client.prepareIndex(index, type)
+            IndexResponse response = client.prepareIndex("error", errorCode)
                     .setSource(jsonBuilder()
                             .startObject()
-                            .field("Sender", sender)
-                            .field("Receiver", receiver)
-                            .field("method", method)
-                            .field("objectType", objectType)
-                            .field("login", login)
+                            .field("dateTime", dateTime)
+                            .field("exception", exception)
                             .endObject()
                     )
                     .get();
@@ -171,7 +149,6 @@ class Receiver {
 
             e.printStackTrace();
         }
-
         client.close();
     }
 
