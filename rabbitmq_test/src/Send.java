@@ -1,7 +1,7 @@
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-//import org.json.*;
+
 import javax.json.*;
 
 public class Send {
@@ -36,7 +36,7 @@ public class Send {
                         .add("login", "joskeNA")
                         .add("password", "joske123"))
                 .add("Body", jsonFactory.createObjectBuilder()
-                        .add("UUID", "KDN34576HDBHRBCR0879879")
+                        .add("uuid", "KDN34576HDBHRBCR0879879")
                         .add("name", "KOEN")
                         .add("surname", "VANDERVELDE")
                         .add("address", "Bosstraat 20, 9000 PLOP")
@@ -61,7 +61,7 @@ public class Send {
                         .add("login", "joskeNA")
                         .add("password", "joske123"))
                 .add("Body", jsonFactory.createObjectBuilder()
-                        .add("UUID", "UUID")
+                        .add("uuid", "UUID")
                         .add("name", "name")
                         .add("surname", "surname")
                         .add("address", "address")

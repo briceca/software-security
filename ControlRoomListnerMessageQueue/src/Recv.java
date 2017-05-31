@@ -50,6 +50,7 @@ public class Recv {
                     JSONObject getSth = obj.getJSONObject("Credentials");
                     String login = getSth.get("login").toString();
                     JSONObject body = obj.getJSONObject("Body");
+                    System.out.println("sender: " + sender);
                     switch(objectType) {
                         case "VST":
                             ElasticSendVST(sender, objectType, method, receiver, type, login, body);
@@ -87,9 +88,18 @@ public class Recv {
                             ElasticSendORD(sender, objectType, method, receiver, type, login, body);
                             ElasticSend("summary", objectType, method, sender, receiver, type, login);
                             break;
+                        case "REG":
+                            ElasticSendREG(sender, objectType, method, receiver, type, login, body);
+                            ElasticSend("summary", objectType, method, sender, receiver, type, login);
+                        break;
                         case "SHT":
                             ElasticSendSHT(sender, objectType, method, receiver, type, login, body);
                             ElasticSend("summary", objectType, method, sender, receiver, type, login);
+                        break;
+                        case "TRS":
+                            ElasticSendTRS(sender, objectType, method, receiver, type, login, body);
+                            ElasticSend("summary", objectType, method, sender, receiver, type, login);
+                            break;
                         default: System.out.println("objectType Niet herkend: " + objectType);
                             break;
                     }
@@ -105,15 +115,58 @@ public class Recv {
 
     private static void ElasticSendVST(String index, String objectType, String method, String receiver, String type, String login, JSONObject body)
     {
-       String UUID = body.getString("uuid");
+       /*String UUID = body.getString("uuid");
         String name = body.getString("name");
         String surname = body.getString("surname");
-        String address = body.getString("address");
+        String city = body.getString("city");
+        String zip = body.getString("zip");
+        String street = body.getString("street");
+                String state = body.getString("state");
+            String country = body.getString("country");
         String email = body.getString("email");
         String tel = body.getString("tel");
-        String cable = body.getString("cable");
+        int cable = body.getInt("cable");
         String breakfast = body.getString("breakfast");
-        String version = body.getString("version");
+        int version = body.getInt("version");
+*/
+        TransportClient client = setupClient();
+
+        try {
+            IndexResponse response = client.prepareIndex(index, type)
+                    .setSource(jsonBuilder()
+                            .startObject()
+                            /*.field("uuid", UUID)
+                            .field("name", name)
+                            .field("surname", surname)
+                            .field("city", city)
+                            .field("zip", zip)
+                            .field("country", country)
+                            .field("street", street)
+                            .field("state", state)
+                            .field("email", email)
+                            .field("tel", tel)
+                            .field("cable", cable)
+                            .field("breakfast", breakfast)
+                            .field("version", version)*/
+                            .field("body", body)
+                            .field("Receiver", receiver)
+                            .field("method", method)
+                            .field("objectType", objectType)
+                            .field("login", login)
+                            .endObject()
+                    )
+                    .get();
+            System.out.println(response.getResult() + "\n\n");
+        } catch (IOException e) {
+            System.out.println("sender: " + index);
+            e.printStackTrace();
+        }
+        client.close();
+    }
+    private static void ElasticSendREG(String index, String objectType, String method, String receiver, String type, String login, JSONObject body)
+    {
+        String UUID = body.getString("uuid");
+        String time = body.getString("time");
 
         TransportClient client = setupClient();
 
@@ -122,14 +175,7 @@ public class Recv {
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("uuid", UUID)
-                            .field("name", name)
-                            .field("surname", surname)
-                            .field("address", address)
-                            .field("email", email)
-                            .field("tel", tel)
-                            .field("cable", cable)
-                            .field("breakfast", breakfast)
-                            .field("version", version)
+                            .field("time", time)
                             .field("Receiver", receiver)
                             .field("method", method)
                             .field("objectType", objectType)
@@ -139,7 +185,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
@@ -147,16 +193,21 @@ public class Recv {
     private static void ElasticSendCOL(String index, String objectType, String method, String receiver, String type, String login, JSONObject body)
     {
 
-        String UUID = body.getString("uuid");
+       /* String UUID = body.getString("uuid");
         String name = body.getString("name");
         String surname = body.getString("surname");
        // String address = body.getString("address");
         String email = body.getString("email");
         String tel = body.getString("tel");//optioneel
-        String function = body.getString("functio");
-        String cable = body.getString("cable");
+        String function = body.getString("function");
+        String cable = "unknown";
+        if(!body.isNull("clable"))
+        {
+            cable = body.getString("cable").toString();
+        }
+
       //  String breakfast = body.getString("breakfast");
-        String version = body.getString("version");
+        int version = body.getInt("version");*/
 
         TransportClient client = setupClient();
 
@@ -164,24 +215,74 @@ public class Recv {
             IndexResponse response = client.prepareIndex(index, type)
                     .setSource(jsonBuilder()
                             .startObject()
-                            .field("UUID", UUID)
-                            .field("name", name)
-                            .field("surname", surname)
-                            .field("email", email)
-                            .field("tel", tel)
-                            .field("function", function)
-                            .field("cable", cable)
+                           // .field("UUID", UUID)
+                          //  .field("name", name)
+                          //  .field("surname", surname)
+                          //  .field("email", email)
+                           // .field("tel", tel)
+                          //  .field("function", function)
+                            .field("body", body)
+                          /*  .field("cable", cable)
                             .field("version", version)
                             .field("Receiver", receiver)
                             .field("method", method)
                             .field("objectType", objectType)
-                            .field("login", login)
+                            .field("login", login)*/
                             .endObject()
                     )
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
+            System.out.println("sender: " + index);
+            e.printStackTrace();
+        }
+        client.close();
+    }
+    private static void ElasticSendTRS(String index, String objectType, String method, String receiver, String type, String login, JSONObject body)
+    {
 
+       /* String UUID = body.getString("uuid");
+        String name = body.getString("name");
+        String surname = body.getString("surname");
+       // String address = body.getString("address");
+        String email = body.getString("email");
+        String tel = body.getString("tel");//optioneel
+        String function = body.getString("function");
+        String cable = "unknown";
+        if(!body.isNull("clable"))
+        {
+            cable = body.getString("cable").toString();
+        }
+
+      //  String breakfast = body.getString("breakfast");
+        int version = body.getInt("version");*/
+
+        TransportClient client = setupClient();
+
+        try {
+            IndexResponse response = client.prepareIndex(index, type)
+                    .setSource(jsonBuilder()
+                            .startObject()
+                            // .field("UUID", UUID)
+                            //  .field("name", name)
+                            //  .field("surname", surname)
+                            //  .field("email", email)
+                            // .field("tel", tel)
+                            //  .field("function", function)
+                            .field("body", body)
+                            .field("objectType", objectType)
+
+                          /*  .field("cable", cable)
+                            .field("version", version)
+                            .field("Receiver", receiver)
+                            .field("method", method)
+                            .field("login", login)*/
+                            .endObject()
+                    )
+                    .get();
+            System.out.println(response.getResult() + "\n\n");
+        } catch (IOException e) {
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
@@ -212,7 +313,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
@@ -243,7 +344,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
@@ -255,9 +356,8 @@ public class Recv {
         String surname = body.getString("surname");
         String tel = body.getString("tel");
         String email = body.getString("email");
-        String topic = body.getString("topic");
         String desc_short = body.getString("desc_short");
-        String version = body.getString("version");
+        int version = body.getInt("version");
 
         TransportClient client = setupClient();
 
@@ -269,7 +369,6 @@ public class Recv {
                             .field("name", name)
                             .field("surname", surname)
                             .field("email", email)
-                            .field("topic", topic)
                             .field("desc_short", desc_short)
                             .field("version", version)
                             .field("Receiver", receiver)
@@ -281,13 +380,14 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
     }
     private static void ElasticSendEVT(String index, String objectType, String method, String receiver, String type, String login, JSONObject body)
     {
+        /*
         String UUID = body.getString("uuid");
         String topic = body.getString("topic");
         String topic_desc = body.getString("topic_description");
@@ -296,21 +396,15 @@ public class Recv {
         String end = body.getString("end");
         String location = body.getString("location");
         int version = body.getInt("version");
-
+*/
         TransportClient client = setupClient();
 
         try {
             IndexResponse response = client.prepareIndex(index, type)
                     .setSource(jsonBuilder()
                             .startObject()
-                            .field("UUID", UUID)
-                            .field("topic", topic)
-                            .field("desc", topic_desc)
-                            .field("start", start)
-                            .field("end", end)
-                            .field("spk_uuid", spk_uuid)
-                            .field("location", location)
-                            .field("version", version)
+
+                            .field("body", body)
                             .field("Receiver", receiver)
                             .field("method", method)
                             .field("objectType", objectType)
@@ -320,7 +414,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
@@ -353,7 +447,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
         client.close();
@@ -386,6 +480,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
+            System.out.println("sender: " + index);
 
             e.printStackTrace();
         }
@@ -408,7 +503,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
-
+            System.out.println("sender: " + index);
             e.printStackTrace();
         }
 
@@ -419,6 +514,7 @@ public class Recv {
         String name = body.getString("name");
         int version = body.getInt("version");
         JSONArray ords = body.getJSONArray("productlines");
+        //array order = new array[ords.length()];
         int id[] = new int[ords.length()];
         String names[] = new String[ords.length()];
         double price[] = new double[ords.length()];
@@ -426,6 +522,7 @@ public class Recv {
         for (int i = 0; i < ords.length(); ++i) {
             JSONObject ord = ords.getJSONObject(i);
             id[i] = ord.getInt("id");
+            names[i] = ord.getString("name");
             price[i] = ord.getDouble("price");
             quantity[i] = ord.getInt("quantity");
         }
@@ -438,10 +535,8 @@ public class Recv {
                             .startObject()
                             .field("uuid", UUID)
                             .field("klant", name)
-                            .array("product_id", id)
-                            .array("product_naam", names)
-                            .array("product_prijs", price)
-                            .array("aantal", quantity)
+                            .field("version", version)
+                            .array("productlines", ords)
                             .endObject()
                     )
                     .get();
@@ -456,11 +551,12 @@ public class Recv {
     {
         String UUID = body.getString("uuid");
         String col_uuid = body.getString("col_uuid");
-        String start = body.getString("start");
-        String end = body.getString("end");
+        String start = (body.get("start")).toString();
+        String end = (body.get("end")).toString();
         String location = body.getString("location");
         int version = body.getInt("version");
 
+        System.out.print(start);
 
         TransportClient client = setupClient();
 
@@ -473,6 +569,7 @@ public class Recv {
                             .field("start", start)
                             .field("version", version)
                             .field("end", end)
+                            .field("location", location)
                             .field("Receiver", receiver)
                             .field("method", method)
                             .field("objectType", objectType)
@@ -482,6 +579,7 @@ public class Recv {
                     .get();
             System.out.println(response.getResult() + "\n\n");
         } catch (IOException e) {
+            System.out.println("sender: " + index);
 
             e.printStackTrace();
         }
