@@ -14,6 +14,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -48,16 +49,26 @@ class Receiver {
                     int errorCode = obj.getInt("ErrorCode");
 
                     final int i = 200, j = 300, k = 400;
-                    if (errorCode < i) {
-                        ElasticSendMessageError(obj);
-                    } else if (errorCode >= i && errorCode < j) {
-                        ElasticSendDBError(obj);
-                    } else if (errorCode == j) {
-                        ElasticSendAppError(obj);
-                    } else if (errorCode == k) {
-                        ElasticSendFraudError(obj);
-                    } else {
-                        System.out.println("Error code niet herkend: " + errorCode);
+                    try {
+                        if (errorCode < i) {
+                            ElasticSendMessageError(obj);
+                        } else if (errorCode >= i && errorCode < j) {
+                            ElasticSendDBError(obj);
+                        } else if (errorCode == j) {
+                            ElasticSendAppError(obj);
+                        } else if (errorCode == k) {
+                            ElasticSendFraudError(obj);
+                        } else {
+                            System.out.println("Error code niet herkend: " + errorCode);
+                        }
+                    } catch (JSONException e) {
+                        System.out.println(e.getMessage());
+                        System.out.println("Error code: " + errorCode);
+
+                        if (errorCode != j) {
+                            System.out.println("Sender" + obj.getString("Sender"));
+                        }
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
