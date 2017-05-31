@@ -47,13 +47,15 @@ class Receiver {
                     JSONObject obj = new JSONObject(message);
                     int errorCode = obj.getInt("ErrorCode");
 
-                    final int i = 200, j = 300;
+                    final int i = 200, j = 300, k = 400;
                     if (errorCode < i) {
                         ElasticSendMessageError(obj);
                     } else if (errorCode >= i && errorCode < j) {
                         ElasticSendDBError(obj);
                     } else if (errorCode == j) {
                         ElasticSendAppError(obj);
+                    } else if (errorCode == k) {
+                        ElasticSendFraudError(obj);
                     } else {
                         System.out.println("Error code niet herkend: " + errorCode);
                     }
@@ -141,6 +143,38 @@ class Receiver {
                             .startObject()
                             .field("dateTime", dateTime)
                             .field("exception", exception)
+                            .endObject()
+                    )
+                    .get();
+            System.out.println(response.getResult() + "\n\n");
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
+        client.close();
+    }
+
+    private static void ElasticSendFraudError(JSONObject body) {
+        String errorCode = Integer.toString(body.getInt("ErrorCode"));
+        String sender = body.getString("Sender");
+        String receiver = body.getString("Receiver");
+        String objectType = body.getString("ObjectType");
+        Date dateTime = new Date(body.getLong("DateTime"));
+        String UUID = body.getString("UUID");
+        double actualCredit = body.getDouble("ActualCredit");
+
+        TransportClient client = setupClient();
+
+        try {
+            IndexResponse response = client.prepareIndex("error", errorCode)
+                    .setSource(jsonBuilder()
+                            .startObject()
+                            .field("sender", sender)
+                            .field("receiver", receiver)
+                            .field("objectType", objectType)
+                            .field("dateTime", dateTime)
+                            .field("uuid", UUID)
+                            .field("actualCredit", actualCredit)
                             .endObject()
                     )
                     .get();
