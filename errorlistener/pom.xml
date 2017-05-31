@@ -35,7 +35,7 @@
 				<version>2.17</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
-					<consoleOutput>true</consoleOutput>
+					<consoleOutput>false</consoleOutput>
 					<failsOnError>false</failsOnError>
 					<linkXRef>false</linkXRef>
 				</configuration>
